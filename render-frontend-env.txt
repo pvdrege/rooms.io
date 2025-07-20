@@ -1,0 +1,11 @@
+# RENDER FRONTEND ENVIRONMENT VARIABLES
+
+# Backend API URL - Backend deploy edildikten sonra URL'yi alacaksın
+NEXT_PUBLIC_API_URL=https://rooms-backend.onrender.com
+
+# Socket.IO URL (aynı backend URL'i)
+NEXT_PUBLIC_SOCKET_URL=https://rooms-backend.onrender.com
+
+# App info
+NEXT_PUBLIC_APP_NAME=Rooms
+NEXT_PUBLIC_APP_DESCRIPTION=Professional networking platform 
