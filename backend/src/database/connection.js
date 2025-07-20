@@ -1,19 +1,32 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Database configuration
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.NODE_ENV === 'test' 
-    ? process.env.TEST_DB_NAME || 'rooms_test'
-    : process.env.DB_NAME || 'rooms_dev',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-};
+// Database configuration with DATABASE_URL support
+let dbConfig;
+
+if (process.env.DATABASE_URL) {
+  // Parse DATABASE_URL for production (Render, Heroku, etc.)
+  dbConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false // Required for cloud databases
+    }
+  };
+} else {
+  // Use individual environment variables for development
+  dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.NODE_ENV === 'test' 
+      ? process.env.TEST_DB_NAME || 'rooms_test'
+      : process.env.DB_NAME || 'rooms_dev',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'password',
+    max: 20, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
+    connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  };
+}
 
 // Create a new pool instance
 const pool = new Pool(dbConfig);
