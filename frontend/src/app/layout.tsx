@@ -1,8 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Rooms - Professional Networking Platform',
@@ -16,7 +12,41 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>{`
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+          }
+          
+          @media (max-width: 768px) {
+            h1 {
+              font-size: 2.5rem !important;
+            }
+            
+            div[style*="grid-template-columns"] {
+              grid-template-columns: 1fr !important;
+            }
+            
+            div[style*="display: flex"] {
+              flex-direction: column !important;
+              align-items: center !important;
+            }
+            
+            nav div[style*="display: flex"] {
+              flex-direction: row !important;
+            }
+          }
+        `}</style>
+      </head>
+      <body>
         {children}
       </body>
     </html>
