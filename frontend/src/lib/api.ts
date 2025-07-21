@@ -52,6 +52,8 @@ export const authAPI = {
 
 // Profile API
 export const profileAPI = {
+  getMe: () => api.get('/api/profiles/me'),
+  
   updateProfile: (data: any) => api.put('/api/profiles', data),
   
   uploadPicture: (file: File) => {

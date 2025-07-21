@@ -5,6 +5,74 @@ const { validate, profileUpdateSchema } = require('../middleware/validation');
 
 const router = express.Router();
 
+// Get current user's profile
+router.get('/me', authenticateToken, async (req, res) => {
+  const client = await getClient();
+  
+  try {
+    const userId = req.user.id;
+
+    const result = await client.query(`
+      SELECT 
+        p.*,
+        u.membership,
+        json_agg(
+          DISTINCT json_build_object(
+            'id', h.id,
+            'name', h.name,
+            'displayName', h.display_name,
+            'category', h.category
+          )
+        ) FILTER (WHERE h.id IS NOT NULL) as hashtags
+      FROM profiles p
+      JOIN users u ON p.user_id = u.id
+      LEFT JOIN user_hashtags uh ON p.user_id = uh.user_id
+      LEFT JOIN hashtags h ON uh.hashtag_id = h.id AND h.is_active = true
+      WHERE p.user_id = $1
+      GROUP BY p.id, u.membership
+    `, [userId]);
+
+    const profile = result.rows[0];
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: profile.id,
+        userId: profile.user_id,
+        bio: profile.bio,
+        location: profile.location,
+        website: profile.website,
+        pictureUrl: profile.profile_picture_url,
+        hashtags: profile.hashtags || [],
+        createdAt: profile.created_at,
+        updatedAt: profile.updated_at,
+        user: {
+          id: req.user.id,
+          email: req.user.email,
+          name: profile.display_name || req.user.name,
+          pictureUrl: profile.profile_picture_url
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get profile'
+    });
+  } finally {
+    client.release();
+  }
+});
+
 // Update current user's profile
 router.put('/', authenticateToken, validate(profileUpdateSchema), async (req, res) => {
   const client = await getClient();
